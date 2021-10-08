@@ -1,12 +1,28 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { createTestingApp } from './__support__/create-testing.app';
+import { CreateUserDto } from '../src/users/create-user.dto';
 
-describe('AppController (e2e)', () => {
+describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     app = await createTestingApp();
+  });
+
+  describe('/users (POST)', () => {
+    it('does not require authentication', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/users')
+        .set('Accept', 'application/json')
+        .send({
+          username: 'new user',
+          password: 'password',
+          role: 'seller',
+        } as CreateUserDto);
+
+      expect(response.status).toEqual(201);
+    });
   });
 
   describe('/ (GET)', () => {
