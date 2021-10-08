@@ -1,7 +1,7 @@
 import { User, UserRole } from './user.entity';
 import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class CreateUserDto implements Omit<User, 'id' | 'deposit'> {
+export class CreateUserDto implements Omit<User, 'id' | 'deposit' | 'toDto'> {
   @IsString()
   @MinLength(8)
   @MaxLength(255)

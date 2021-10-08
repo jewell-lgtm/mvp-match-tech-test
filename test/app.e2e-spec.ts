@@ -9,6 +9,10 @@ describe('AppController (e2e)', () => {
     app = await createTestingApp();
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   describe('/ (GET)', () => {
     it('should be implemented consuming and producing “application/json”', async () => {
       const response = await request(app.getHttpServer())

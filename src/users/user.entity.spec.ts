@@ -15,7 +15,7 @@ function userModelTestFactory({
   username = 'User Name',
   password = 'secret',
   deposit = 100,
-  role = 'buyer',
+  role = UserRole.buyer,
 }: Partial<User> = {}): User {
   const model = new User();
   model.username = username;
