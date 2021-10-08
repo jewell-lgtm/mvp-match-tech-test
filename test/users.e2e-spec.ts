@@ -3,12 +3,16 @@ import * as request from 'supertest';
 import { createTestingApp } from './__support__/create-testing.app';
 import { CreateUserDto } from '../src/users/create-user.dto';
 import { CreateUserResponseDto } from '../src/users/create-user-response.dto';
+import { Connection } from 'typeorm';
+import { User } from '../src/users/user.entity';
 
+const username = 'new user';
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     app = await createTestingApp();
+    await app.get(Connection).getRepository(User).delete({ username });
   });
 
   afterEach(async () => {
@@ -22,7 +26,7 @@ describe('UsersController (e2e)', () => {
           .post('/users')
           .set('Accept', 'application/json')
           .send({
-            username: 'new user',
+            username,
             password: 'password',
             role: 'seller',
           } as CreateUserDto);
@@ -37,12 +41,20 @@ describe('UsersController (e2e)', () => {
 
         expect(failed.status).toEqual(401);
 
-        const success = await request(app.getHttpServer())
+        const me = await request(app.getHttpServer())
+          .get(`/users/me`)
+          .set('Authorization', `Bearer ${token}`);
+
+        expect(me.status).toEqual(200);
+
+        expect(me.body).toHaveProperty('id', id);
+
+        const withId = await request(app.getHttpServer())
           .get(`/users/${id}`)
           .set('Authorization', `Bearer ${token}`);
 
-        expect(success.status).toEqual(200);
-        expect(success.body).toHaveProperty('id', id);
+        expect(withId.status).toEqual(200);
+        expect(withId.body).toHaveProperty('id', id);
       });
     });
 
@@ -51,7 +63,7 @@ describe('UsersController (e2e)', () => {
         .post('/users')
         .set('Accept', 'application/json')
         .send({
-          username: 'new user',
+          username: username,
           password: 'password',
           role: 'seller',
         } as CreateUserDto);

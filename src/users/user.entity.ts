@@ -1,8 +1,9 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { UserDto } from './user.dto';
 import { plainToClass } from 'class-transformer';
 
 export enum UserRole {
+  admin = 'admin',
   seller = 'seller',
   buyer = 'buyer',
 }
@@ -12,7 +13,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
   // Implement user model with username, password, deposit and role fields
-  @Column()
+  @Column({ unique: true })
   username: string;
   @Column()
   password: string; // todo: don't store passwords in database

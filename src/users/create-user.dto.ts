@@ -1,7 +1,9 @@
 import { User, UserRole } from './user.entity';
 import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class CreateUserDto implements Omit<User, 'id' | 'deposit' | 'toDto'> {
+export class CreateUserDto
+  implements Pick<User, 'password' | 'role' | 'username'>
+{
   @IsString()
   @MinLength(8)
   @MaxLength(255)
