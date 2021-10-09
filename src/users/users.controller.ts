@@ -1,10 +1,10 @@
 import {
-  Request,
   Body,
   Controller,
   Get,
   Param,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { UserDto } from './user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UserRole } from './user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -33,7 +34,7 @@ export class UsersController {
     return this.findOne(req.user.sub);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(new JwtAuthGuard(UserRole.admin))
   @Get(':id')
   findOne(@Param('id') id): Promise<UserDto> {
     return this.usersService.findOne(id).then((it) => it.toDto());
