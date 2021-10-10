@@ -137,6 +137,29 @@ describe('Products Controller (e2e)', () => {
         );
       });
     });
+    describe('DELETE', () => {
+      it('allows a seller to delete their own product', async () => {
+        const response = await request(app.getHttpServer())
+          .delete(`/products/${existingProductId}`)
+          .set('Authorization', `Bearer ${seller.token}`);
+
+        expect(response.status).toEqual(200);
+
+        expect(
+          await request(app.getHttpServer())
+            .get(`/products/${existingProductId}`)
+            .set('Authorization', `Bearer ${seller.token}`)
+            .then((it) => it.status),
+        ).toEqual(404);
+      });
+      it("forbids a seller to delete another seller's product", async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/products/${existingProductId}`)
+          .set('Authorization', `Bearer ${otherSeller.token}`);
+
+        expect(response.status).toEqual(403);
+      });
+    });
   });
   function createProduct(dto: CreateProductDto): Promise<ProductDto> {
     return request(app.getHttpServer())
