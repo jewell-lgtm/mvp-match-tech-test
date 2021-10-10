@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { UserDto } from './dto/user.dto';
+import { UserDto } from '../users/dto/user.dto';
 import { plainToClass } from 'class-transformer';
 
 export enum UserRole {

@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { createTestingApp } from './__support__/create-testing.app';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
 import { Connection } from 'typeorm';
-import { User } from '../src/users/user.entity';
+import { User } from '../src/core/user.entity';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 
 const username = 'new user';
@@ -100,6 +100,21 @@ describe('UsersController (e2e)', () => {
 
         expect(updated).toHaveProperty('status', 400);
         expect(JSON.stringify(updated.body.message)).toContain('uusername');
+      });
+    });
+    describe('DELETE', () => {
+      it('lets a user delete themselves', async () => {
+        const deleted = await request(app.getHttpServer())
+          .delete('/users/me')
+          .set('Authorization', `Bearer ${token}`);
+
+        expect(deleted).toHaveProperty('status', 200);
+
+        expect(
+          await request(app.getHttpServer())
+            .get('/users/me')
+            .set('Authorization', `Bearer ${token}`),
+        ).toHaveProperty('status', 404);
       });
     });
   });

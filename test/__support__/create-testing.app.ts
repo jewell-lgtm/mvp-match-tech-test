@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { EntityNotFoundInterceptor } from '../../src/core/entity-not-found.interceptor';
 
 export async function createTestingApp(): Promise<INestApplication> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -15,7 +16,7 @@ export async function createTestingApp(): Promise<INestApplication> {
       forbidNonWhitelisted: true,
     }),
   );
-
+  app.useGlobalInterceptors(new EntityNotFoundInterceptor());
   await app.init();
 
   return app;

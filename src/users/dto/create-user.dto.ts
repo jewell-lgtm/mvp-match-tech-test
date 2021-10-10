@@ -1,4 +1,4 @@
-import { User, UserRole } from '../user.entity';
+import { User, UserRole } from '../../core/user.entity';
 import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto
