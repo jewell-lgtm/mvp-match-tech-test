@@ -8,7 +8,13 @@ export async function createTestingApp(): Promise<INestApplication> {
   }).compile();
 
   const app = moduleFixture.createNestApplication();
-  app.useGlobalPipes(new ValidationPipe({ enableDebugMessages: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      enableDebugMessages: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   await app.init();
 
