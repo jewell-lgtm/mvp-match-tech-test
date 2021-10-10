@@ -1,5 +1,6 @@
-import { User, UserRole } from '../../core/user.entity';
+import { User } from '../../core/user.entity';
 import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
+import { UserRole } from '../../core/dto/user-role.enum';
 
 export class CreateUserDto
   implements Pick<User, 'password' | 'role' | 'username'>

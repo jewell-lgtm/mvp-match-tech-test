@@ -3,9 +3,10 @@ import * as request from 'supertest';
 import { createTestingApp } from './__support__/create-testing.app';
 import { CreateUserDto } from '../src/users/dto/create-user.dto';
 import { Connection, In } from 'typeorm';
-import { User, UserRole } from '../src/core/user.entity';
+import { User } from '../src/core/user.entity';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 import { registerUser } from './__support__/register-user';
+import { UserRole } from '../src/core/dto/user-role.enum';
 
 const username = 'UsersController (e2e) new user';
 const updatedUsername = 'UsersController (e2e) an updated username';

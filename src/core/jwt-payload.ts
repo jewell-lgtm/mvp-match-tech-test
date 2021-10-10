@@ -1,5 +1,6 @@
-import { User, UserRole } from './user.entity';
+import { User } from './user.entity';
 import { plainToClass } from 'class-transformer';
+import { UserRole } from './dto/user-role.enum';
 
 export class JwtPayloadDto {
   sub: number;

@@ -1,4 +1,4 @@
-import { UserRole } from '../../core/user.entity';
+import { UserRole } from './user-role.enum';
 
 export class UserDto {
   deposit: number;

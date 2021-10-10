@@ -13,10 +13,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUserResponseDto } from './create-user-response.dto';
 import { UsersService } from './users.service';
 import { AuthService } from '../core/auth.service';
-import { UserDto } from './dto/user.dto';
+import { UserDto } from '../core/dto/user.dto';
 import { JwtAuthGuard } from '../core/jwt-auth.guard';
-import { UserRole } from '../core/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRole } from '../core/dto/user-role.enum';
 
 @Controller('users')
 export class UsersController {

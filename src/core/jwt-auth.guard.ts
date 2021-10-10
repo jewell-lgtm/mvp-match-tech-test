@@ -5,9 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserRole } from './user.entity';
 import { JwtPayloadDto } from './jwt-payload';
+import { UserRole } from './dto/user-role.enum';
 
+export interface JwtAuthRequest {
+  user: JwtPayloadDto;
+}
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
   private requiredRoles: UserRole[];
