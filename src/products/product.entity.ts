@@ -1,9 +1,7 @@
+import { Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
 export class Product {
-  amountAvailable: number;
-
-  cost: number;
-
-  productName: string;
-
-  sellerId: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 }
