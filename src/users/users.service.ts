@@ -4,6 +4,7 @@ import { User } from '../core/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { DepositCoinDto } from './dto/deposit-coin.dto';
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,15 @@ export class UsersService {
     return this.findOne(id);
   }
 
-  async deleteOne(id: number) {
+  async deleteOne(id: number): Promise<void> {
     await this.repo.remove(await this.repo.findOneOrFail(id));
+  }
+
+  async depositCoin(id: number, coin: DepositCoinDto): Promise<void> {
+    const originalValue = await this.repo
+      .findOneOrFail(id)
+      .then((it) => it.deposit);
+    const newValue = originalValue + coin.coinValue;
+    await this.repo.update(id, { deposit: newValue });
   }
 }

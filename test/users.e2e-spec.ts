@@ -7,6 +7,8 @@ import { User } from '../src/core/user.entity';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 import { registerUser } from './__support__/register-user';
 import { UserRole } from '../src/core/dto/user-role.enum';
+import { UserDto } from '../src/core/dto/user.dto';
+import { DepositCoinDto } from '../src/users/dto/deposit-coin.dto';
 
 const username = 'UsersController (e2e) new user';
 const updatedUsername = 'UsersController (e2e) an updated username';
@@ -117,5 +119,37 @@ describe('UsersController (e2e)', () => {
         ).toHaveProperty('status', 404);
       });
     });
+  });
+
+  describe('Depositing money', () => {
+    it('allows a buyer to deposit a coin', async () => {
+      expect(await getCurrentUser()).toHaveProperty('deposit', 0);
+
+      await request(app.getHttpServer())
+        .post('/users/me/deposit')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ coinValue: 50 } as DepositCoinDto)
+        .expect(201);
+
+      expect(await getCurrentUser()).toHaveProperty('deposit', 50);
+    });
+    it('rejects invalid deposit amounts', async () => {
+      expect(await getCurrentUser()).toHaveProperty('deposit', 0);
+
+      await request(app.getHttpServer())
+        .post('/users/me/deposit')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ coinValue: 51 as any } as DepositCoinDto)
+        .expect(400);
+
+      expect(await getCurrentUser()).toHaveProperty('deposit', 0);
+    });
+
+    function getCurrentUser(): Promise<UserDto> {
+      return request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${token}`)
+        .then((r) => r.body);
+    }
   });
 });

@@ -17,6 +17,7 @@ import { UserDto } from '../core/dto/user.dto';
 import { JwtAuthGuard } from '../core/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../core/dto/user-role.enum';
+import { DepositCoinDto } from './dto/deposit-coin.dto';
 
 @Controller('users')
 export class UsersController {
@@ -52,5 +53,11 @@ export class UsersController {
   @Delete('me')
   async deleteMe(@Request() req): Promise<void> {
     await this.users.deleteOne(parseInt(req.user.sub));
+  }
+
+  @UseGuards(new JwtAuthGuard(UserRole.buyer))
+  @Post('me/deposit')
+  async increaseDeposit(@Request() req, @Body() coin: DepositCoinDto) {
+    await this.users.depositCoin(parseInt(req.user.sub), coin);
   }
 }
