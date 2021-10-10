@@ -22,6 +22,11 @@ import { OwnProductGuard } from './own-product.guard';
 export class ProductsController {
   constructor(private service: ProductsService) {}
 
+  @Get()
+  listProducts(): Promise<ProductDto[]> {
+    return this.service.list().then((list) => list.map((it) => it.toDto()));
+  }
+
   @Post()
   @UseGuards(new JwtAuthGuard(UserRole.seller))
   createProduct(

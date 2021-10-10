@@ -28,4 +28,8 @@ export class ProductsService {
   async deleteOne(id: number): Promise<void> {
     await this.products.delete(id);
   }
+
+  list(): Promise<Product[]> {
+    return this.products.find();
+  }
 }

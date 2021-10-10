@@ -71,6 +71,15 @@ describe('Products Controller (e2e)', () => {
   });
 
   describe('CRUD for products', () => {
+    describe('LIST', () => {
+      it('allows anyone to list available products', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/products')
+          .expect(200);
+
+        expect(response.body.map((it) => it.id)).toEqual([existingProductId]);
+      });
+    });
     describe('CREATE', () => {
       it('does not allow buyers to create a product', async () => {
         const response = await request(app.getHttpServer())
