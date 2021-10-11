@@ -20,7 +20,7 @@ import { OrdersModule } from './orders/orders.module';
         url: config.get('DATABASE_URL'),
         entities: [User, Product],
         logging: true,
-        synchronize: false,
+        // synchronize: false,
         // synchronize: true,
         // dropSchema: true,
       }),

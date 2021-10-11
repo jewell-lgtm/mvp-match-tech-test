@@ -32,4 +32,14 @@ export class ProductsService {
   list(): Promise<Product[]> {
     return this.products.find();
   }
+
+  // prevent writing dirty info to the db if multiple people request the same product near-simultaneously
+  async incrementAmount(id: number, number: number): Promise<void> {
+    await this.products
+      .createQueryBuilder('products')
+      .update(Product)
+      .where({ id })
+      .set({ amountAvailable: () => `"amountAvailable" + ${number}` })
+      .execute();
+  }
 }

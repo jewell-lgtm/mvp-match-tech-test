@@ -3,6 +3,7 @@ import { User } from '../core/user.entity';
 import { Product } from '../products/product.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderChange } from './order-change.model';
+import { BadOrderError } from './bad-order.error';
 
 export class Order {
   change: OrderChange;
@@ -25,10 +26,18 @@ export class Order {
   }
 
   private getPurchased(): OrderPurchasedDto {
-    return { id: this.product.id, quantity: this.createOrder.quantity };
+    return { productId: this.product.id, quantity: this.createOrder.quantity };
   }
 
-  isValid() {
-    return true;
+  assertIsValid(): void {
+    if (this.getTotal() > this.user.deposit) {
+      throw new BadOrderError('Please insert more coins');
+    }
+    if (this.product.amountAvailable < this.createOrder.quantity) {
+      const productName = this.product.productName;
+      throw new BadOrderError(
+        `Not enough ${productName} available, please select something else`,
+      );
+    }
   }
 }

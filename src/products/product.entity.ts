@@ -13,6 +13,7 @@ import { plainToClass } from 'class-transformer';
 export class Product implements ProductDto {
   @PrimaryGeneratedColumn()
   id: number;
+
   @Column({ type: 'int' })
   amountAvailable: number;
 

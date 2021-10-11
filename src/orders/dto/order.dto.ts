@@ -7,7 +7,7 @@ export class OrderDto {
 }
 
 export class OrderPurchasedDto {
-  id: number;
+  productId: number;
   quantity: number;
 }
 

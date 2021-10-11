@@ -11,25 +11,25 @@ import { CreateOrderDto } from '../src/orders/dto/create-order.dto';
 import { deposit } from './__support__/deposit';
 import { OrderDto } from '../src/orders/dto/order.dto';
 import { UserDto } from '../src/core/dto/user.dto';
-import { ExtractJwt } from 'passport-jwt';
-import fromAuthHeaderWithScheme = ExtractJwt.fromAuthHeaderWithScheme;
+import { ProductDto } from '../src/products/dto/product.dto';
 
 const buyerUsername = 'Orders Controller (e2e) buyer';
 const sellerUsername = 'Orders Controller (e2e) seller';
 
 const password = 'test1234!@£';
-type ProductName = 'Snickers' | 'Mars' | 'Dom Perignon';
+type ProductName = 'Peanuts' | 'Snickers' | 'Mars' | 'Dom Perignon';
 
 const productDtos: CreateProductDto[] = [
+  { productName: 'Peanuts', amountAvailable: 100, cost: 1 },
   {
     productName: 'Snickers',
     amountAvailable: 1,
-    cost: 30,
+    cost: 10,
   },
   {
     productName: 'Mars',
     amountAvailable: 10,
-    cost: 62,
+    cost: 31,
   },
   {
     productName: 'Dom Perignon',
@@ -40,7 +40,6 @@ const productDtos: CreateProductDto[] = [
 
 describe('Orders Controller (e2e)', () => {
   let app: INestApplication;
-  let connection: Connection;
 
   beforeEach(async () => {
     app = await createTestingApp();
@@ -86,18 +85,18 @@ describe('Orders Controller (e2e)', () => {
   describe('Ordering from the vending machine', () => {
     it('lets a buyer make a purchase', async () => {
       const order = await purchase({
-        productId: productIds.Snickers,
-        quantity: 1,
+        productId: productIds.Peanuts,
+        quantity: 10,
       });
 
-      expect(order).toHaveProperty('total', 30);
-      expect(order).toHaveProperty('purchased.id', productIds.Snickers);
-      expect(order).toHaveProperty('purchased.quantity', 1);
-      expect(order).toHaveProperty('change.total', 20);
+      expect(order).toHaveProperty('total', 10);
+      expect(order).toHaveProperty('purchased.productId', productIds.Peanuts);
+      expect(order).toHaveProperty('purchased.quantity', 10);
+      expect(order).toHaveProperty('change.total', 40);
       expect(order).toHaveProperty('change.coins', {
         100: 0,
         50: 0,
-        20: 1,
+        20: 2,
         10: 0,
         5: 0,
       });
@@ -109,15 +108,50 @@ describe('Orders Controller (e2e)', () => {
       });
       expect(await getMe()).toHaveProperty('deposit', 0);
     });
-    it('leaves change that cannot be paid in coins as deposit', async () => {
-      await connection
-        .getRepository(User)
-        .update({ username: buyerUsername }, { deposit: 31 });
+
+    it('updates the available amount', async () => {
       await purchase({
         productId: productIds.Snickers,
         quantity: 1,
       });
-      expect(await getMe()).toHaveProperty('deposit', 1);
+      expect(await getProduct(productIds.Snickers)).toHaveProperty(
+        'amountAvailable',
+        0,
+      );
+    });
+    it('leaves change that cannot be paid in coins as deposit', async () => {
+      const r = await purchase({
+        productId: productIds.Mars,
+        quantity: 1,
+      });
+      expect(r.change.total).toEqual(15);
+      expect(await getMe()).toHaveProperty('deposit', 4);
+    });
+    it("it doesn't let you order more than your balance", async () => {
+      const buyChampagne: CreateOrderDto = {
+        productId: productIds['Dom Perignon'],
+        quantity: 10,
+      };
+      const r = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(buyChampagne);
+      expect(r.status).toEqual(400);
+      expect(r.body.message).toEqual('Please insert more coins');
+    });
+    it("doesn't let you buy more than are available", async () => {
+      const buyMany: CreateOrderDto = {
+        productId: productIds.Snickers,
+        quantity: 2,
+      };
+      const r = await request(app.getHttpServer())
+        .post('/orders')
+        .set('Authorization', `Bearer ${token}`)
+        .send(buyMany);
+      expect(r.status).toEqual(400);
+      expect(r.body.message).toEqual(
+        'Not enough Snickers available, please select something else',
+      );
     });
   });
 
@@ -134,6 +168,13 @@ describe('Orders Controller (e2e)', () => {
     return request(app.getHttpServer())
       .get('/users/me')
       .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .then((res) => res.body);
+  }
+
+  function getProduct(id: number): Promise<ProductDto> {
+    return request(app.getHttpServer())
+      .get(`/products/${id}`)
       .expect(200)
       .then((res) => res.body);
   }
