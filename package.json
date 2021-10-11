@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "engines": {
+    "node": "^16.8.0"
+  },
   "scripts": {
     "dev:db": "docker run --name vending-machine-postgres --env POSTGRES_USER=vendingmachine --env POSTGRES_PASSWORD=password --publish 127.0.0.1:5432:5432 --detach --restart unless-stopped postgres:13",
     "prebuild": "rimraf dist",
