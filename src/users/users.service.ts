@@ -39,4 +39,8 @@ export class UsersService {
     const newValue = originalValue + coin.coinValue;
     await this.repo.update(id, { deposit: newValue });
   }
+
+  async updateDeposit(id: number, newAmount: number): Promise<void> {
+    await this.repo.update({ id }, { deposit: newAmount });
+  }
 }

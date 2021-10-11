@@ -9,6 +9,10 @@ import { UserRole } from '../src/core/dto/user-role.enum';
 import { createProduct } from './__support__/create-product';
 import { CreateOrderDto } from '../src/orders/dto/create-order.dto';
 import { deposit } from './__support__/deposit';
+import { OrderDto } from '../src/orders/dto/order.dto';
+import { UserDto } from '../src/core/dto/user.dto';
+import { ExtractJwt } from 'passport-jwt';
+import fromAuthHeaderWithScheme = ExtractJwt.fromAuthHeaderWithScheme;
 
 const buyerUsername = 'Orders Controller (e2e) buyer';
 const sellerUsername = 'Orders Controller (e2e) seller';
@@ -36,6 +40,7 @@ const productDtos: CreateProductDto[] = [
 
 describe('Orders Controller (e2e)', () => {
   let app: INestApplication;
+  let connection: Connection;
 
   beforeEach(async () => {
     app = await createTestingApp();
@@ -51,7 +56,7 @@ describe('Orders Controller (e2e)', () => {
     await app.close();
   });
 
-  let productIds: Map<ProductName, number>;
+  let productIds: Record<ProductName, number>;
   let token: string;
 
   beforeEach(async () => {
@@ -68,34 +73,28 @@ describe('Orders Controller (e2e)', () => {
       password,
       role: UserRole.seller,
     });
-    productIds = new Map();
+    productIds = {} as Record<ProductName, number>;
     for (const dto of productDtos) {
-      const id = await createProduct(app, seller.token, dto).then(
-        (it) => it.id,
-      );
-      productIds.set(dto.productName as ProductName, id);
+      productIds[dto.productName as ProductName] = await createProduct(
+        app,
+        seller.token,
+        dto,
+      ).then((it) => it.id);
     }
   });
 
   describe('Ordering from the vending machine', () => {
     it('lets a buyer make a purchase', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/orders')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          productId: productIds.get('Snickers'),
-          quantity: 1,
-        } as CreateOrderDto);
+      const order = await purchase({
+        productId: productIds.Snickers,
+        quantity: 1,
+      });
 
-      expect(response.status).toEqual(201);
-      expect(response.body).toHaveProperty('total', 30);
-      expect(response.body).toHaveProperty(
-        'purchased.id',
-        productIds.get('Snickers'),
-      );
-      expect(response.body).toHaveProperty('purchased.quantity', 1);
-      expect(response.body).toHaveProperty('change.total', 20);
-      expect(response.body).toHaveProperty('change.coins', {
+      expect(order).toHaveProperty('total', 30);
+      expect(order).toHaveProperty('purchased.id', productIds.Snickers);
+      expect(order).toHaveProperty('purchased.quantity', 1);
+      expect(order).toHaveProperty('change.total', 20);
+      expect(order).toHaveProperty('change.coins', {
         100: 0,
         50: 0,
         20: 1,
@@ -103,5 +102,39 @@ describe('Orders Controller (e2e)', () => {
         5: 0,
       });
     });
+    it('updates the deposit amount', async () => {
+      await purchase({
+        productId: productIds.Snickers,
+        quantity: 1,
+      });
+      expect(await getMe()).toHaveProperty('deposit', 0);
+    });
+    it('leaves change that cannot be paid in coins as deposit', async () => {
+      await connection
+        .getRepository(User)
+        .update({ username: buyerUsername }, { deposit: 31 });
+      await purchase({
+        productId: productIds.Snickers,
+        quantity: 1,
+      });
+      expect(await getMe()).toHaveProperty('deposit', 1);
+    });
   });
+
+  function purchase(dto: CreateOrderDto): Promise<OrderDto> {
+    return request(app.getHttpServer())
+      .post('/orders')
+      .set('Authorization', `Bearer ${token}`)
+      .send(dto)
+      .expect(201)
+      .then((res) => res.body);
+  }
+
+  function getMe(): Promise<UserDto> {
+    return request(app.getHttpServer())
+      .get('/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .then((res) => res.body);
+  }
 });

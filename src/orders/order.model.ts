@@ -5,7 +5,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderChange } from './order-change.model';
 
 export class Order {
-  private change: OrderChange;
+  change: OrderChange;
   constructor(
     private user: User,
     private product: Product,
@@ -26,5 +26,9 @@ export class Order {
 
   private getPurchased(): OrderPurchasedDto {
     return { id: this.product.id, quantity: this.createOrder.quantity };
+  }
+
+  isValid() {
+    return true;
   }
 }
