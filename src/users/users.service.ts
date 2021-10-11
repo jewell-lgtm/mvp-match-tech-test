@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '../core/user.entity';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DepositCoinDto } from './dto/deposit-coin.dto';
@@ -43,5 +43,18 @@ export class UsersService {
 
   async updateDeposit(id: number, newAmount: number): Promise<void> {
     await this.repo.update({ id }, { deposit: newAmount });
+  }
+
+  login(username: string, password: string): Promise<User> {
+    return this.repo.findOneOrFail({ username, password }).catch((e) => {
+      if (e instanceof EntityNotFoundError) {
+        throw new UnauthorizedException();
+      }
+      throw e;
+    });
+  }
+
+  list(): Promise<User[]> {
+    return this.repo.find();
   }
 }

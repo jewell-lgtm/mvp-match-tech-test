@@ -27,6 +27,6 @@ export class User implements UserDto {
   createdProducts?: Product[];
 
   toDto(): UserDto {
-    return plainToClass(UserDto, this);
+    return plainToClass(UserDto, this, { excludeExtraneousValues: true });
   }
 }

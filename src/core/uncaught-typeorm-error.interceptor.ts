@@ -14,10 +14,8 @@ export class UncaughtTypeormErrorInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((err) => {
-        console.log('***');
-        console.error(err);
         if (err instanceof EntityNotFoundError) {
-          return throwError(() => new NotFoundException(err.message));
+          return throwError(() => new NotFoundException(err));
         }
         return throwError(() => err);
       }),

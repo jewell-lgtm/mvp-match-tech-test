@@ -5,7 +5,9 @@ import { UserRole } from '../core/dto/user-role.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Request } from 'express';
 import { OrdersService } from './orders.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('orders')
 export class OrdersController {
   constructor(private service: OrdersService) {}
