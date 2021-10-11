@@ -33,11 +33,12 @@ export class UsersService {
   }
 
   async depositCoin(id: number, coin: DepositCoinDto): Promise<void> {
-    const originalValue = await this.repo
-      .findOneOrFail(id)
-      .then((it) => it.deposit);
-    const newValue = originalValue + coin.coinValue;
-    await this.repo.update(id, { deposit: newValue });
+    await this.repo
+      .createQueryBuilder('users')
+      .update(User)
+      .where({ id })
+      .set({ deposit: () => `"deposit" + ${coin.coinValue}` })
+      .execute();
   }
 
   async updateDeposit(id: number, newAmount: number): Promise<void> {

@@ -60,4 +60,10 @@ export class UsersController {
   async increaseDeposit(@Request() req, @Body() coin: DepositCoinDto) {
     await this.users.depositCoin(parseInt(req.user.sub), coin);
   }
+
+  @UseGuards(new JwtAuthGuard(UserRole.buyer))
+  @Post('me/reset')
+  async resetDeposit(@Request() req) {
+    await this.users.updateDeposit(parseInt(req.user.sub), 0);
+  }
 }
