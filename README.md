@@ -19,7 +19,7 @@ First Run
 ---------
 
 1. `yarn dev:db` will start a docker container running postgres in the background
-2. run `yarn start:dev` and kill the server (this runs the migrations)
+2. run `yarn start:dev` and kill the server when it starts (this runs the migrations)
 3. `yarn test:e2e` will run the application's e2e test suite
 4. `yarn start:dev` will run a development server
 5. head to http://localhost:3000/api to view the OpenAPI (Swagger) documentation
