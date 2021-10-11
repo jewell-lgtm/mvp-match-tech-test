@@ -1,8 +1,9 @@
 import { IsIn } from 'class-validator';
 
-type CoinValue = 5 | 10 | 20 | 50 | 100;
+export const CoinValues = [100, 50, 20, 10, 5] as const;
+export type CoinValue = typeof CoinValues[number];
 
 export class DepositCoinDto {
-  @IsIn([5, 10, 20, 50, 100])
+  @IsIn(CoinValues)
   coinValue: CoinValue;
 }

@@ -9,6 +9,7 @@ import { registerUser } from './__support__/register-user';
 import { UserRole } from '../src/core/dto/user-role.enum';
 import { UserDto } from '../src/core/dto/user.dto';
 import { DepositCoinDto } from '../src/users/dto/deposit-coin.dto';
+import { deposit } from './__support__/deposit';
 
 const username = 'UsersController (e2e) new user';
 const updatedUsername = 'UsersController (e2e) an updated username';
@@ -125,11 +126,7 @@ describe('UsersController (e2e)', () => {
     it('allows a buyer to deposit a coin', async () => {
       expect(await getCurrentUser()).toHaveProperty('deposit', 0);
 
-      await request(app.getHttpServer())
-        .post('/users/me/deposit')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ coinValue: 50 } as DepositCoinDto)
-        .expect(201);
+      await deposit(app, token, 50);
 
       expect(await getCurrentUser()).toHaveProperty('deposit', 50);
     });

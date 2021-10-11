@@ -16,12 +16,12 @@ const password = 'test1234!@£';
 const existingProductDto: CreateProductDto = {
   productName: 'A product that exists',
   amountAvailable: 100,
-  cost: 500,
+  cost: 35,
 };
 const createProductDto: CreateProductDto = {
   productName: 'A new product',
   amountAvailable: 1,
-  cost: 100,
+  cost: 50,
 };
 const updateProductDto: UpdateProductDto = {
   productName: 'An updated product',
@@ -77,7 +77,9 @@ describe('Products Controller (e2e)', () => {
           .get('/products')
           .expect(200);
 
-        expect(response.body.map((it) => it.id)).toEqual([existingProductId]);
+        expect(response.body.map((it) => it.id)).toEqual(
+          expect.arrayContaining([existingProductId]),
+        );
       });
     });
     describe('CREATE', () => {
