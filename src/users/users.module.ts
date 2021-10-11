@@ -11,5 +11,6 @@ import { LocalStrategy } from './local.strategy';
   imports: [CoreModule, TypeOrmModule.forFeature([User]), PassportModule],
   providers: [UsersService, LocalStrategy],
   controllers: [UsersController],
+  exports: [UsersService],
 })
 export class UsersModule {}

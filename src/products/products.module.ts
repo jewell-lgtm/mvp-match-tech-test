@@ -10,5 +10,6 @@ import { OwnProductGuard } from './own-product.guard';
   imports: [CoreModule, TypeOrmModule.forFeature([Product])],
   controllers: [ProductsController],
   providers: [OwnProductGuard, ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}
